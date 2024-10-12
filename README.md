@@ -72,7 +72,7 @@ To run the application on your local machine:
 ## Before and After
 
 ![Before Colorization](/uploads/eagle.jpg)
-![After Colorization](/uploads/colourized_eagle.jpg)
+![After Colorization](/uploads/colorized_eagle.jpg)
 
 ## Features
 
