@@ -69,6 +69,11 @@ To run the application on your local machine:
    - Click the "Choose File" button to select a black and white image from your computer.
    - Click the "Colorize Image" button to upload your image and view the colorized result.
 
+## Before and After
+
+![Before Colorization](/uploads/eagle.jpg)
+![After Colorization](/uploads/colourized_eagle.jpg)
+
 ## Features
 
 - Upload black and white images.
