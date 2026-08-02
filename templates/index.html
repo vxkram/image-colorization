@@ -13,8 +13,11 @@
 <body>
     <div class="container">
         <h1>UPLOAD A B/W IMAGE TO COLORIZE</h1>
+        {% if error %}
+        <p class="error-message">{{ error }}</p>
+        {% endif %}
         <form action="/" method="post" enctype="multipart/form-data" class="upload-form">
-            <input type="file" name="file" accept="image/*" id="file" class="file-input">
+            <input type="file" name="file" accept="image/png, image/jpeg" id="file" class="file-input">
             <label for="file" class="file-input-label">Choose File</label>
             <span id="file-name" class="file-name">No file chosen</span>
             <button type="submit" class="upload-button">Colorize Image</button>

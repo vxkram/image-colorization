@@ -94,5 +94,48 @@ h1 {
     color: #313131;
 }
 
+.error-message {
+    color: #b00020;
+    font-family: "Protest Strike", sans-serif;
+    margin-top: -0.5rem;
+}
+
+.result-images {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    margin: 2rem 0;
+}
+
+.result-images figure {
+    margin: 0;
+}
+
+.result-images img {
+    max-width: 20rem;
+    max-height: 20rem;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.result-images figcaption {
+    margin-top: 0.5rem;
+    font-family: "Protest Strike", sans-serif;
+    color: #363636;
+}
+
+.back-link {
+    display: inline-block;
+    margin-top: 1rem;
+    color: #363636;
+    font-family: "Protest Strike", sans-serif;
+    text-decoration: none;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
 
 

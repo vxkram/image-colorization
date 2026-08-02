@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+venv/
+.venv/
+.env
+
+# runtime upload/output folder — keep the directory, not its contents
+uploads/*
+!uploads/.gitkeep
+
+# large pretrained model files — fetched by scripts/download_models.py
+models/*
+!models/.gitkeep
