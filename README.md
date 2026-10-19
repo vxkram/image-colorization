@@ -1,5 +1,7 @@
 # Image Colorization
 
+[![tests](https://github.com/vxkram/image-colorization/actions/workflows/tests.yml/badge.svg)](https://github.com/vxkram/image-colorization/actions/workflows/tests.yml)
+
 A Flask web app that turns black-and-white photos into color using a pretrained deep learning model. Upload an image, and the app runs it through a Caffe colorization network (via OpenCV's DNN module) and shows the original next to the colorized result.
 
 ![Before and after: eagle](examples/eagle_original.jpg)
