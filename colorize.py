@@ -8,6 +8,7 @@ MODELS_DIR = os.path.join(BASE_DIR, "models")
 PROTOTXT = os.path.join(MODELS_DIR, "colorization_deploy_v2.prototxt")
 POINTS = os.path.join(MODELS_DIR, "pts_in_hull.npy")
 MODEL = os.path.join(MODELS_DIR, "colorization_release_v2.caffemodel")
+MAX_SIDE = 2048  # longest side, in pixels, that colorize_image works at
 
 _net = None
 _pts = None
@@ -44,29 +45,36 @@ def _load_model():
     return _net, _pts
 
 
-def colorize_image(input_path, output_path):
+def colorize_image(input_path, output_path, max_side=MAX_SIDE):
     net, _ = _load_model()
 
     image = cv2.imread(input_path)
     if image is None:
         raise ValueError(f"Could not read image: {input_path}")
 
-    scaled = image.astype("float32") / 255.0
-    lab = cv2.cvtColor(scaled, cv2.COLOR_BGR2LAB)
+    # The network only sees a 224x224 copy, so a huge photo gains no colour,
+    # just memory (about 80 MB per megapixel). Work at max_side at most.
+    height, width = image.shape[:2]
+    if max(height, width) > max_side:
+        scale = max_side / max(height, width)
+        image = cv2.resize(image, (round(width * scale), round(height * scale)), interpolation=cv2.INTER_AREA)
+        height, width = image.shape[:2]
 
-    resized = cv2.resize(lab, (224, 224))
-    L = cv2.split(resized)[0]
+    lab = cv2.cvtColor(image.astype("float32") / 255.0, cv2.COLOR_BGR2LAB)
+    del image
+
+    L = cv2.resize(lab, (224, 224))[:, :, 0]
     L -= 50
 
     net.setInput(cv2.dnn.blobFromImage(L))
     ab = net.forward()[0, :, :, :].transpose((1, 2, 0))
-    ab = cv2.resize(ab, (image.shape[1], image.shape[0]))
 
-    L = cv2.split(lab)[0]
-    colorized = np.concatenate((L[:, :, np.newaxis], ab), axis=2)
-    colorized = cv2.cvtColor(colorized, cv2.COLOR_LAB2BGR)
-    colorized = np.clip(colorized, 0, 1)
-    colorized = (255 * colorized).astype("uint8")
+    # Reuse the full-size Lab array: keep its L, swap in the predicted a/b,
+    # and convert in place instead of building new full-size copies.
+    lab[:, :, 1:] = cv2.resize(ab, (width, height))
+    cv2.cvtColor(lab, cv2.COLOR_LAB2BGR, dst=lab)
+    np.clip(lab, 0, 1, out=lab)
+    lab *= 255
 
-    cv2.imwrite(output_path, colorized)
+    cv2.imwrite(output_path, lab.astype("uint8"))
     return output_path
