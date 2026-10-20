@@ -73,4 +73,4 @@ tests/                     # pytest suite
 ## Limitations
 
 - Colorization quality depends entirely on the pretrained model — it can produce desaturated or implausible colors on scenes unlike its training data.
-- No persistence: uploaded images live only in the local `uploads/` folder.
+- No persistence: uploaded images live only in the local `uploads/` folder, and anything older than an hour is deleted on the next upload.

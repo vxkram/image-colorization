@@ -1,6 +1,7 @@
 import io
 import os
 import sys
+import time
 
 import pytest
 
@@ -53,3 +54,38 @@ def test_index_post_with_missing_model_returns_503(client, monkeypatch):
     response = client.post("/", data=data, content_type="multipart/form-data")
     assert response.status_code == 503
     assert b"Missing model file" in response.data
+
+
+def test_unreadable_image_is_not_left_on_disk(client, tmp_path):
+    data = {"file": (io.BytesIO(b"not really a jpeg"), "photo.jpg")}
+    response = client.post("/", data=data, content_type="multipart/form-data")
+    assert response.status_code in (400, 503)  # 503 when the model isn't downloaded
+    assert os.listdir(tmp_path) == []
+
+
+def test_prune_uploads_removes_only_old_files(tmp_path):
+    old = tmp_path / "old_colorized.jpg"
+    new = tmp_path / "new_colorized.jpg"
+    keep = tmp_path / ".gitkeep"
+    for path in (old, new, keep):
+        path.write_bytes(b"x")
+    two_hours_ago = time.time() - 2 * 60 * 60
+    os.utime(old, (two_hours_ago, two_hours_ago))
+    os.utime(keep, (two_hours_ago, two_hours_ago))
+
+    app_module.prune_uploads(str(tmp_path), max_age=60 * 60)
+
+    assert sorted(os.listdir(tmp_path)) == [".gitkeep", "new_colorized.jpg"]
+
+
+def test_upload_prunes_old_files(client, tmp_path, monkeypatch):
+    stale = tmp_path / "stale_colorized.jpg"
+    stale.write_bytes(b"x")
+    two_hours_ago = time.time() - 2 * 60 * 60
+    os.utime(stale, (two_hours_ago, two_hours_ago))
+    monkeypatch.setattr(app_module, "colorize_image", lambda src, dst: dst)
+
+    data = {"file": (io.BytesIO(b"fake image bytes"), "photo.jpg")}
+    response = client.post("/", data=data, content_type="multipart/form-data")
+    assert response.status_code == 302
+    assert not stale.exists()
