@@ -15,7 +15,7 @@ A Flask web app that turns black-and-white photos into color using a pretrained 
 
 The model is the [Zhang et al. colorization network](https://github.com/richzhang/colorization) (SIGGRAPH 2016): a CNN trained to predict plausible `a`/`b` color channels for a grayscale `L` channel in LAB color space. The pipeline in `colorize.py`:
 
-1. Converts the input image to LAB and extracts the lightness (`L`) channel.
+1. Scales photos down so the longest side is at most 2048 px (the network only sees a 224×224 copy, so larger inputs add memory, not colour), then converts to LAB and extracts the lightness (`L`) channel.
 2. Feeds `L` through the network to predict the `a`/`b` color channels.
 3. Recombines `L` with the predicted `a`/`b` and converts back to BGR.
 
@@ -73,4 +73,5 @@ tests/                     # pytest suite
 ## Limitations
 
 - Colorization quality depends entirely on the pretrained model — it can produce desaturated or implausible colors on scenes unlike its training data.
+- Output is at most 2048 px on the longest side. That keeps a 48 MP upload at about 1.1 GB of RAM instead of 4.3 GB.
 - No persistence: uploaded images live only in the local `uploads/` folder, and anything older than an hour is deleted on the next upload.
